@@ -1,13 +1,16 @@
 const express = require('express'); 
 const router = express.Router(); 
 const Article=require("../Model/article") 
-const Scategorie =require("../Model/souscategorie")  
-router.get('/', async (req, res, )=> 
-{ try { 
-    const articles = await Article.find({}, null, {sort: {'_id': -1}}).populate("scategorieID").exec();
-    res.status(200).json(articles);
- } catch (error) 
- { res.status(404).json({ message: error.message }); } 
+const Scategorie =require("../Model/souscategorie")
+const {verifyToken} =require("../middleware/verify-token")  
+const {authorizeRoles} = require("../middleware/authorizedRoles")
+router.get('/',verifyToken,authorizeRoles("admin","visiteur"), async (req, res, )=> 
+{ 
+    try { 
+        const articles = await Article.find({}, null, {sort: {'_id': -1}}).populate("scategorieID").exec();
+        res.status(200).json(articles);
+        }catch (error){ 
+            res.status(404).json({ message: error.message }); } 
 });  
 router.post('/', async (req, res) => {
      const nouvarticle = new Article(req.body) 
